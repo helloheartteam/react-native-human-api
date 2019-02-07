@@ -24,11 +24,12 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
 
 
 /** Initialization of the instance */
-- (id)initWithClientID:(NSString *)cliendID andAuthURL:(NSString *)authURL
+- (id)initWithClientID:(NSString *)cliendID andAuthURL:(NSString *)authURL andAuthToken:(NSString *)authToken
 {
     self = [super init];
     self.clientID = cliendID;
     self.authURL = authURL;
+    self.authToken = authToken;
     return self;
 }
 
@@ -279,6 +280,9 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
     [[NSMutableURLRequest alloc] initWithURL: [[NSURL alloc] initWithString:self.authURL]];
     [request setHTTPMethod:@"POST"];
     
+    NSString* authHeader = [NSString stringWithFormat:@"Bearer %@", self.authToken];
+    [request addValue:authHeader forHTTPHeaderField:@"Authorization"];
+
     NSDictionary *sessionTokenObject = [[NSDictionary alloc] initWithObjectsAndKeys:
                                         humanId, @"humanId",
                                         self.clientID, @"clientId",

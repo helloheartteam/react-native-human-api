@@ -21,8 +21,9 @@ RCT_REMAP_METHOD(onConnect, connectOptions:(NSDictionary *)options callback:(RCT
     NSString *authURL = options[@"auth_url"];
     NSString *language = options[@"language"];
     NSString *publicToken = options[@"public_token"];
+    NSString *authToken = options[@"auth_token"];
     
-    HumanConnectViewController *hcvc = [[HumanConnectViewController alloc] initWithClientID:clientId andAuthURL:authURL];
+    HumanConnectViewController *hcvc = [[HumanConnectViewController alloc] initWithClientID:clientId andAuthURL:authURL andAuthToken:authToken];
     
     UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
     while (root.presentedViewController != nil) {

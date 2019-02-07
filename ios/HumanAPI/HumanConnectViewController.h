@@ -29,11 +29,12 @@ typedef NS_ENUM(NSInteger, HumanAPIFlowType) {
 @property (nonatomic, retain) UIWebView *popupWebView;
 @property NSString *clientID;
 @property NSString *authURL;
+@property NSString *authToken;
 @property NSDictionary *options;
 @property HumanAPIFlowType flowType;
 @property CGFloat keyboardFixer;
 
-- (id)initWithClientID:(NSString *)cliendID andAuthURL:(NSString *)authURL;
+- (id)initWithClientID:(NSString *)cliendID andAuthURL:(NSString *)authURL andAuthToken:(NSString *)authToken;
 - (void)startConnectFlowForNewUser:(NSString *)userId;
 - (void)startConnectFlowFor:(NSString *)userId andPublicToken:(NSString *)publicToken;
 
