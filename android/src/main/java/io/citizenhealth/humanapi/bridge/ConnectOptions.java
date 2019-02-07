@@ -16,12 +16,14 @@ public class ConnectOptions {
     public static final String PUBLIC_TOKEN = "public_token";
     public static final String HUMAN_ID = "human_id";
     public static final String SESSION_TOKEN = "session_token";
+    public static final String AUTH_TOKEN = "auth_token";
 
     private String clientID = "";
     private String authURL = "";
     private String clientUserID = "";
     private String language = "";
     private String publicToken = "";
+    private String authToken = "";
 
     public ConnectOptions(@Nullable ReadableMap options) {
         if (options == null) {
@@ -52,6 +54,11 @@ public class ConnectOptions {
             publicToken = options.getString(PUBLIC_TOKEN);
             Log.d(TAG, PUBLIC_TOKEN + publicToken);
         }
+
+        if (options.hasKey(AUTH_TOKEN)) {
+            authToken = options.getString(AUTH_TOKEN);
+            Log.d(TAG, AUTH_URL + authToken);
+        }
     }
 
     public Bundle getBundle() {
@@ -60,6 +67,7 @@ public class ConnectOptions {
         b.putString(CLIENT_ID, clientID);
         b.putString(AUTH_URL, authURL);
         b.putString(CLIENT_USER_ID, clientUserID);
+        b.putString(AUTH_TOKEN, authToken);
 
         if (language.trim().length() > 0)
             b.putString(LANGUAGE, language);

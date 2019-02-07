@@ -113,6 +113,8 @@ public class ConnectActivity extends Activity {
         Bundle b = getIntent().getExtras();
         clientId = b.getString("client_id");
         authURL = b.getString("auth_url");
+        authToken = b.getString("auth_token");
+        
         Log.d("hapi-auth", "Auth URL: " + authURL);
 
 
@@ -203,6 +205,7 @@ public class ConnectActivity extends Activity {
 
 
         try {
+            resty.withHeader("Authorization", "Bearer " + authToken);
             JSONResource res = resty.json(authURL, resty.content(new JSONObject(data)));
             Log.d("hapi-auth", "result = " + res.toString());
             Intent intent = new Intent();
