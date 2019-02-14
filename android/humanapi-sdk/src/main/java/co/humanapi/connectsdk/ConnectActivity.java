@@ -41,6 +41,7 @@ public class ConnectActivity extends Activity {
     private String authURL;
     private String userId;
     private String publicToken;
+    private String authToken;
     private HashMap <String,String> options;
 
 
