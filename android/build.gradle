@@ -13,12 +13,12 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion || 23
-    buildToolsVersion rootProject.ext.buildToolsVersion || "23.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion != null ? rootProject.ext.compileSdkVersion : 23
+    buildToolsVersion rootProject.ext.buildToolsVersion != null ? rootProject.ext.buildToolsVersion : "23.0.1"
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion || 16 
-        targetSdkVersion rootProject.ext.targetSdkVersion || 22
+        minSdkVersion rootProject.ext.minSdkVersion != null ? rootProject.ext.minSdkVersion : 16 
+        targetSdkVersion rootProject.ext.targetSdkVersion != null ? rootProject.ext.targetSdkVersion : 22
         versionCode 1
         versionName "1.0"
     }
