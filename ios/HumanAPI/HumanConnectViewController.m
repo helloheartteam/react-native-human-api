@@ -301,7 +301,9 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
          if (!error && (httpResp.statusCode == 200 || httpResp.statusCode == 201)) {
              NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
              NSLog(@"response from server: %@", res);
-             [self dismiss];
+             dispatch_async(dispatch_get_main_queue(), ^{
+                [self dismiss];
+             });
              NSString * publicToken = res[@"publicToken"];
              [self fireConnectSuccessWithPublicToken: publicToken != NULL ? publicToken : @"" ];
          } else {
