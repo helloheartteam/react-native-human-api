@@ -43,24 +43,24 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
     int ScreenWidth = (int)[[UIScreen mainScreen ]bounds].size.width;
     int ScreenHeight = (int)[[UIScreen mainScreen ]bounds].size.height;
     
-    // UIWebView init
-    self.webView = [[UIWebView alloc] initWithFrame:
+    // WKWebView init
+    self.webView = [[WKWebView alloc] initWithFrame:
                     CGRectMake(0, NavbarHeight, ScreenWidth, ScreenHeight - NavbarHeight)];
     self.webView.backgroundColor = [UIColor whiteColor];
     self.webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth |
                                      UIViewAutoresizingFlexibleHeight);
-    self.webView.delegate = self;
+    self.webView.navigationDelegate = self;
     self.webView.tag = wvtMain;
     [self.view addSubview:self.webView];
     
-    // Popup UIWebView init
+    // Popup WKWebView init
     // Commented out by Nabyl Bennouri
-    self.popupWebView = [[UIWebView alloc] initWithFrame:
+    self.popupWebView = [[WKWebView alloc] initWithFrame:
                          CGRectMake(0, NavbarHeight, ScreenWidth, ScreenHeight - NavbarHeight)];
     self.popupWebView.backgroundColor = [UIColor whiteColor];
     self.popupWebView.autoresizingMask = (UIViewAutoresizingFlexibleWidth |
                                           UIViewAutoresizingFlexibleHeight);
-    self.popupWebView.delegate = self;
+    self.popupWebView.navigationDelegate = self;
     self.popupWebView.hidden = YES;
     self.popupWebView.tag = wvtPopup;
     [self.view addSubview:self.popupWebView];
@@ -127,28 +127,30 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
     self.keyboardFixer = self.keyboardFixer * -1;
 }
 
-/** UIWebView request handler, used for catching specific URLs */
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+/** WKWebView request handler, used for catching specific URLs */
+-(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    
+    NSURLRequest *request = navigationAction.request;
     NSString *reqStr = request.URL.absoluteString;
     BOOL externalLink = ([reqStr rangeOfString:@"hapi_external=1"].location != NSNotFound);
     
     // If navigation link, open in Safari
-    if (externalLink && navigationType == UIWebViewNavigationTypeLinkClicked){
+    if (externalLink && navigationAction == UIWebViewNavigationTypeLinkClicked){
         reqStr = [reqStr stringByReplacingOccurrencesOfString:@"hapi_external=1" withString:@""];
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:reqStr]];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
     
-    NSLog(@"req = %@ : %ld", reqStr, (long)navigationType);
     if ([reqStr hasPrefix:@"https://connect-token"]) {
         [self processConnectTokenFrom:request.URL];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     } else if ([reqStr hasPrefix:@"https://connect-closed"]) {
         [self fireConnectFailureWithError:@"closed by user"];
         [self dismiss];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
     
     // Popup handling
@@ -156,20 +158,25 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
     if ([url hasPrefix:@"https://close-popup-with-message"]) {
         [self closePopup];
         [self postMessageFromUrl:url];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     } else if ([url hasPrefix:@"https://close-popup"]) {
         [self closePopup];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     } else if ([url rangeOfString:@"popup=1"].location != NSNotFound) {
         if (webView.tag == wvtPopup) {
-            return YES; // already created
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return; // already created
         }
         self.webView.hidden = YES;
         self.popupWebView.hidden = NO;
         [self.popupWebView loadRequest:request];
-        return NO;
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
-    return YES;
+    decisionHandler(WKNavigationActionPolicyAllow);
+    return;
 }
 
 /** Post message from URL to main view.
@@ -182,23 +189,20 @@ NSString *HumanAPIConnectURL = @"https://connect.humanapi.co";
         //        NSLog(@"parsed message = %@", message);
         NSString *js = [NSString stringWithFormat:@""
                         "window.postMessage(decodeURIComponent('%@'), '*');", message];
-        __unused NSString *jsOverrides = [self.webView
-                                          stringByEvaluatingJavaScriptFromString:js];
+        [self.webView evaluateJavaScript:js completionHandler:nil];
     } else {
         NSLog(@"error with message parsing!");
     }
 }
 
 /** Processing after page load */
-- (void)webViewDidFinishLoad:(UIWebView *)webView
-{
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     if (webView.tag == wvtPopup) {
         NSString *jsClose = @""
         "window.close = function () { \n"
         "   window.location.assign('https://close-popup'); \n"
         "};";
-        __unused NSString *jsOverrides = [webView
-                                          stringByEvaluatingJavaScriptFromString:jsClose];
+        [self.webView evaluateJavaScript:jsClose completionHandler:nil];
     }
 }
 
