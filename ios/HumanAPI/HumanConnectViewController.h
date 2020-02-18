@@ -5,6 +5,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 /** Flow type definition */
 typedef NS_ENUM(NSInteger, HumanAPIFlowType) {
@@ -22,11 +23,11 @@ typedef NS_ENUM(NSInteger, HumanAPIFlowType) {
 /**
  * HumanAPI UI component
  */
-@interface HumanConnectViewController : UIViewController<UIWebViewDelegate>
+@interface HumanConnectViewController : UIViewController<WKNavigationDelegate>
 
 @property (nonatomic, weak) id <HumanAPINotifications> delegate;
-@property (nonatomic, retain) UIWebView *webView;
-@property (nonatomic, retain) UIWebView *popupWebView;
+@property (nonatomic, retain) WKWebView *webView;
+@property (nonatomic, retain) WKWebView *popupWebView;
 @property NSString *clientID;
 @property NSString *authURL;
 @property NSString *authToken;
